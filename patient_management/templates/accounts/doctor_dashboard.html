@@ -1,0 +1,15 @@
+<h2>Doctor Dashboard</h2>
+<p>Welcome, Dr. {{ doctor.user.username }}!</p>
+<h3>Manage Receptionists</h3>
+<ul>
+  {% for receptionist in receptionists %}
+    <li>{{ receptionist.user.username }}</li>
+  {% endfor %}
+</ul>
+
+<h3>Time Slots</h3>
+<ul>
+  {% for slot in slots %}
+    <li>{{ slot.start_time }} - {{ slot.end_time }} {% if slot.is_booked %}(Booked){% endif %}</li>
+  {% endfor %}
+</ul>

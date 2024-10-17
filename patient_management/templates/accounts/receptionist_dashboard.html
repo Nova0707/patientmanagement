@@ -1,0 +1,8 @@
+<h2>Receptionist Dashboard</h2>
+<p>Welcome, {{ receptionist.user.username }}!</p>
+<h3>Available Slots</h3>
+<ul>
+  {% for slot in slots %}
+    <li>{{ slot.start_time }} - {{ slot.end_time }} <a href="#">Book</a></li>
+  {% endfor %}
+</ul>
