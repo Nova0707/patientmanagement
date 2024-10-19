@@ -1,40 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser
+from accounts.user_account_manager import UserAccountManager
 
-class MyUserManager(BaseUserManager):
-    def create_user(self, email, password=None):
-        """
-        Creates and saves a User with the given email, date of
-        birth and password.
-        """
-        if not email:
-            raise ValueError("Users must have an email address")
-
-        user = self.model(
-            email=self.normalize_email(email),
-        )
-
-        user.set_password(password)
-        user.is_active = False
-        user.is_superuser = False
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password=None):
-        """
-        Creates and saves a superuser with the given email, date of
-        birth and password.
-        """
-        user = self.create_user(
-            email,
-            password=password,
-        )
-        user.is_superuser = True
-        user.is_active = True
-        user.save(using=self._db)
-        return user
+#imports related to user roles
+from common.models import RoleMaster
     
-class MyUser(AbstractBaseUser):
+class CustomUserAccounts(AbstractBaseUser):
     email = models.EmailField(
         verbose_name="email address",
         max_length=255,
@@ -42,8 +13,12 @@ class MyUser(AbstractBaseUser):
     )
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    created_on = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    is_deleted = models.BooleanField(default=False)
 
-    objects = MyUserManager()
+    objects = UserAccountManager()
 
     USERNAME_FIELD = "email"
 
@@ -59,3 +34,8 @@ class MyUser(AbstractBaseUser):
         "Does the user have permissions to view the app `app_label`?"
         # Simplest possible answer: Yes, always
         return True
+    
+class UserRole(models.Model):
+    user = models.ForeignKey('accounts.CustomUserAccounts', on_delete=models.CASCADE, related_name='user_role')
+    role = models.ForeignKey(RoleMaster, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)

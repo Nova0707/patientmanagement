@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'common',
 ]
 
 MIDDLEWARE = [
@@ -94,7 +95,7 @@ DATABASES = {
 #     }
 # }
 
-AUTH_USER_MODEL = "accounts.MyUser"
+AUTH_USER_MODEL = 'accounts.CustomUserAccounts'
 
 
 # Password validation
