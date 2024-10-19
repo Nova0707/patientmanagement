@@ -1,5 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
-class BookAppointmentPage(request):
-    pass
+# render pages
+def BookAppointmentPage(request):
+    return render(request,'receptionists/BookingPage.html')
