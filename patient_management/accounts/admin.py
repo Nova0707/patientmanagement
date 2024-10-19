@@ -1,9 +1,12 @@
 from django.contrib import admin
-from .models import User, Doctor, Receptionist, Patient, TimeSlot, Appointment
+from accounts.models import (
+    CustomUserAccounts,UserRole
+)
+# Register your models here.
+@admin.register(CustomUserAccounts)
+class CustomUserAccountsAdmin(admin.ModelAdmin):
+    list_display=['id','email','is_superuser','is_active','created_on','created_by']
 
-admin.site.register(User)
-admin.site.register(Doctor)
-admin.site.register(Receptionist)
-admin.site.register(Patient)
-admin.site.register(TimeSlot)
-admin.site.register(Appointment)
+@admin.register(UserRole)
+class UserRoleAdmin(admin.ModelAdmin):
+    list_display = ['id','user','role','is_deleted']

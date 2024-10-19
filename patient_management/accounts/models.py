@@ -1,71 +1,41 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractBaseUser
+from accounts.user_account_manager import UserAccountManager
 
-# Custom user model to handle different user roles
-class User(AbstractUser):
-    ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('doctor', 'Doctor'),
-        ('receptionist', 'Receptionist'),
-    ]
-    role = models.CharField(max_length=15, choices=ROLE_CHOICES)
-
-    # Add related_name to avoid clashes
-    groups = models.ManyToManyField(
-        Group,
-        related_name='accounts_user_groups',  # Avoids clash with auth.User.groups
-        blank=True
+#imports related to user roles
+from common.models import RoleMaster
+    
+class CustomUserAccounts(AbstractBaseUser):
+    email = models.EmailField(
+        verbose_name="email address",
+        max_length=255,
+        unique=True,
     )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        related_name='accounts_user_permissions',  # Avoids clash with auth.User.user_permissions
-        blank=True
-    )
+    is_superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
+    created_on = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    is_deleted = models.BooleanField(default=False)
 
-# Doctor model to manage doctor-specific details
-class Doctor(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    specialization = models.CharField(max_length=100)
-    average_time = models.DurationField()
-    min_time = models.DurationField()
-    max_time = models.DurationField()
+    objects = UserAccountManager()
+
+    USERNAME_FIELD = "email"
 
     def __str__(self):
-        return self.user.username
+        return self.email
 
-# Receptionist model, linked to Doctor
-class Receptionist(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    def has_perm(self, perm, obj=None):
+        "Does the user have a specific permission?"
+        # Simplest possible answer: Yes, always
+        return True
 
-    def __str__(self):
-        return self.user.username
-
-# Patient model to store patient details
-class Patient(models.Model):
-    name = models.CharField(max_length=100)
-    contact = models.CharField(max_length=15)
-    check_in_time = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-# TimeSlot model to store available slots and their status
-class TimeSlot(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    is_booked = models.BooleanField(default=False)
-    booked_by = models.ForeignKey(Patient, null=True, blank=True, on_delete=models.SET_NULL)
-
-    def __str__(self):
-        return f"{self.start_time} - {self.end_time}"
-
-# Appointment model to manage bookings
-class Appointment(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"Appointment for {self.patient.name} with {self.doctor.user.username}"
+    def has_module_perms(self, app_label):
+        "Does the user have permissions to view the app `app_label`?"
+        # Simplest possible answer: Yes, always
+        return True
+    
+class UserRole(models.Model):
+    user = models.ForeignKey('accounts.CustomUserAccounts', on_delete=models.CASCADE, related_name='user_role')
+    role = models.ForeignKey(RoleMaster, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)
