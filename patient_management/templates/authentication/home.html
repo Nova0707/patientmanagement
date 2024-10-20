@@ -1,0 +1,19 @@
+<!-- patient_management/templates/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+    <h1>Welcome to the Patient Management System!</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'signup' %}">Sign Up</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'verify_email' %}">Verify Email</a></li>
+        </ul>
+    </nav>
+</body>
+</html>
